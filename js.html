@@ -20,9 +20,127 @@
     let adminCircle = null;
 
     let locationWatchId = null;
-    let isFirstGpsLockAcquired = false;
+    // =========================================================================
+    // DUAL-MODE API BRIDGE (GOOGLE APPS SCRIPT NATIVE & VERCEL / STANDALONE)
+    // =========================================================================
+    // URL Web App Google Apps Script (Deployment Exec URL).
+    // Jika dideploy di Vercel, pengguna dapat menempelkan URL exec di sini atau via localStorage / query param ?api=
+    let GAS_API_URL = localStorage.getItem('zettbot_gas_api_url') || '';
 
-    const isGoogleScriptAvailable = typeof google !== 'undefined' && google.script && google.script.run;
+    // Cek parameter ?api= pada URL browser untuk kemudahan konfigurasi awal
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryApi = urlParams.get('api');
+        if (queryApi && queryApi.startsWith('http')) {
+            GAS_API_URL = queryApi.trim();
+            localStorage.setItem('zettbot_gas_api_url', GAS_API_URL);
+        }
+    } catch (e) { }
+
+    const isNativeGAS = typeof google !== 'undefined' && google.script && typeof google.script.run !== 'undefined';
+
+    // Polyfill google.script.run untuk lingkungan eksternal (Vercel / Localhost)
+    if (!isNativeGAS) {
+        window.google = window.google || {};
+        window.google.script = window.google.script || {};
+
+        window.google.script.run = {
+            _successHandler: null,
+            _failureHandler: null,
+
+            withSuccessHandler: function (handler) {
+                const runner = Object.create(this);
+                runner._successHandler = handler;
+                return runner;
+            },
+
+            withFailureHandler: function (handler) {
+                const runner = Object.create(this);
+                runner._failureHandler = handler;
+                return runner;
+            },
+
+            _callApi: function (action, payload) {
+                const success = this._successHandler;
+                const failure = this._failureHandler;
+
+                let targetUrl = GAS_API_URL || localStorage.getItem('zettbot_gas_api_url') || '';
+                if (!targetUrl) {
+                    const promptVal = prompt('Aplikasi mendeteksi Anda berjalan di Vercel / luar Apps Script.\n\nSilakan masukkan URL Google Apps Script Web App Anda (akhiran /exec):');
+                    if (promptVal && promptVal.trim().startsWith('http')) {
+                        targetUrl = promptVal.trim();
+                        localStorage.setItem('zettbot_gas_api_url', targetUrl);
+                        GAS_API_URL = targetUrl;
+                    } else {
+                        const errMsg = 'URL Google Apps Script API belum diatur. Silakan atur GAS_API_URL.';
+                        if (failure) failure(new Error(errMsg));
+                        else if (typeof showToast === 'function') showToast(errMsg, 'error');
+                        return;
+                    }
+                }
+
+                const reqBody = Object.assign({ action: action }, payload);
+
+                // Menggunakan text/plain agar tidak memicu CORS Preflight OPTIONS di browser
+                fetch(targetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify(reqBody)
+                })
+                .then(function (res) {
+                    if (!res.ok) throw new Error('HTTP Status ' + res.status);
+                    return res.json();
+                })
+                .then(function (data) {
+                    if (success) success(data);
+                })
+                .catch(function (err) {
+                    console.error('API Error [' + action + ']:', err);
+                    if (failure) failure(err);
+                    else if (typeof showToast === 'function') showToast('Gagal terhubung ke server: ' + err.message, 'error');
+                });
+            },
+
+            loginUser: function (id, pass, role) {
+                this._callApi('loginUser', { identifier: id, password: pass, selectedRole: role });
+            },
+            getSystemSettings: function () {
+                this._callApi('getSystemSettings', {});
+            },
+            saveSystemSettings: function (payload) {
+                this._callApi('saveSystemSettings', { payload: payload });
+            },
+            getTodayAbsensi: function (userId) {
+                this._callApi('getTodayAbsensi', { userId: userId });
+            },
+            submitAbsen: function (payload) {
+                this._callApi('submitAbsen', { payload: payload });
+            },
+            getAbsensiHistory: function (params) {
+                this._callApi('getAbsensiHistory', { params: params });
+            },
+            updateUserProfile: function (payload) {
+                this._callApi('updateUserProfile', { payload: payload });
+            },
+            generatePdfReportBase64: function (params) {
+                this._callApi('generatePdfReportBase64', { params: params });
+            },
+            generateAndSendPdfReport: function (params) {
+                this._callApi('generateAndSendPdfReport', { params: params });
+            },
+            getAdminUserControlData: function () {
+                this._callApi('getAdminUserControlData', {});
+            },
+            registerUser: function (payload) {
+                this._callApi('registerUser', { payload: payload });
+            }
+        };
+    }
+
+    let isFirstGpsLockAcquired = false;
+    const isGoogleScriptAvailable = true;
 
     document.addEventListener('DOMContentLoaded', function () {
         lucide.createIcons();
