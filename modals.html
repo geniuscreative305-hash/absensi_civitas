@@ -1,0 +1,151 @@
+<!-- CAMERA SELFIE MODAL -->
+<div id="modal-camera"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex flex-col justify-end sm:justify-center p-4">
+    <div class="bg-white rounded-3xl p-5 w-full max-w-md mx-auto space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b pb-2">
+            <h3 class="font-bold text-gray-800 text-sm" id="modal-camera-title">Ambil Foto Selfie Absen</h3>
+            <button onclick="closeCameraModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Hidden native camera input fallback for mobile iframe support -->
+        <input type="file" id="native-camera-input" accept="image/*" capture="user" class="hidden"
+            onchange="handleNativeCameraCapture(event)">
+
+        <div
+            class="relative bg-gray-900 rounded-2xl overflow-hidden aspect-[4/3] flex items-center justify-center border border-gray-800">
+            <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+            <canvas id="webcam-canvas" class="hidden"></canvas>
+            <img id="selfie-preview" class="hidden w-full h-full object-cover">
+
+            <!-- Loading indicator -->
+            <div id="camera-loading-text"
+                class="absolute inset-0 flex flex-col items-center justify-center text-white text-xs bg-gray-900/90 p-4 text-center hidden space-y-2">
+                <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-[#1a64f6]"></i>
+                <span>Menyiapkan kamera...</span>
+            </div>
+
+            <!-- Fallback Notice Display -->
+            <div id="camera-fallback-notice"
+                class="absolute inset-0 flex flex-col items-center justify-center text-white text-xs bg-gray-900/95 p-6 text-center hidden space-y-3">
+                <i data-lucide="camera" class="w-10 h-10 text-[#1a64f6]"></i>
+                <div>
+                    <p class="font-bold text-sm text-gray-100 mb-1">Akses Kamera Live Dibatasi</p>
+                    <p class="text-gray-400 text-[11px] leading-relaxed">Browser/Iframe memblokir kamera live. Silakan
+                        klik tombol di bawah untuk membuka Kamera HP Anda.</p>
+                </div>
+                <button onclick="triggerNativeCamera()"
+                    class="mt-1 py-2.5 px-5 bg-[#1a64f6] text-white font-bold text-xs rounded-xl shadow-lg active:scale-95 transition flex items-center space-x-2">
+                    <i data-lucide="aperture" class="w-4 h-4"></i>
+                    <span>Ambil Foto via Kamera HP</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex space-x-2 pt-1">
+            <button id="btn-snap" onclick="takeSnapshot()"
+                class="flex-1 py-3 bg-[#1a64f6] text-white font-bold text-xs rounded-xl shadow-md active:scale-95 transition">
+                Jepret Foto
+            </button>
+
+            <button id="btn-native-cam" onclick="triggerNativeCamera()"
+                class="hidden flex-1 py-3 bg-[#1a64f6] text-white font-bold text-xs rounded-xl shadow-md active:scale-95 transition flex items-center justify-center space-x-1">
+                <i data-lucide="camera" class="w-4 h-4"></i>
+                <span>Buka Kamera HP</span>
+            </button>
+
+            <button id="btn-retake" onclick="resetSnapshot()"
+                class="hidden flex-1 py-3 bg-gray-200 text-gray-700 font-bold text-xs rounded-xl active:scale-95 transition">
+                Ulangi Foto
+            </button>
+
+            <button id="btn-submit-absen" onclick="processAbsenSubmission()"
+                class="hidden flex-1 py-3 bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-md active:scale-95 transition">
+                Kirim Absensi
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- PDF REPORT MODAL -->
+<div id="modal-pdf" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-5 w-full max-w-sm space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b pb-2">
+            <h3 class="font-bold text-gray-800 text-sm">Cetak & Kirim PDF Laporan</h3>
+            <button onclick="closePdfModal()" class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div class="space-y-3 text-xs">
+            <div>
+                <label class="block font-semibold text-gray-600 mb-1">Email Kepala Sekolah / Target (Opsional)</label>
+                <input type="email" id="pdf-target-email" placeholder="kepsek@sekolah.sch.id"
+                    class="w-full px-3 py-2 bg-gray-50 border rounded-xl">
+            </div>
+            <p class="text-[11px] text-gray-500 italic">File PDF akan dibuat berbasis data filter aktif dan otomatis
+                disimpan di Google Drive sekolah.</p>
+        </div>
+
+        <div class="flex space-x-2 pt-2">
+            <button onclick="handleGeneratePdf()" id="btn-process-pdf"
+                class="w-full py-2.5 bg-rose-600 text-white font-bold text-xs rounded-xl shadow-md hover:bg-rose-700 transition">
+                Proses & Generate PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN USER CONTROL & MONITORING MODAL -->
+<div id="modal-admin-user-list"
+    class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex flex-col justify-end sm:justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl p-5 w-full max-w-md mx-auto space-y-3.5 shadow-2xl flex flex-col max-h-[85vh]">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b pb-3 shrink-0">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-9 h-9 rounded-xl bg-blue-50 text-[#1a64f6] flex items-center justify-center">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800 text-sm">Daftar Pengguna Terdaftar</h3>
+                    <p class="text-[11px] text-gray-500">Database akun terdaftar di sistem</p>
+                </div>
+            </div>
+            <button onclick="closeAdminUserModal()" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-xl bg-gray-50 active:scale-95 transition">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative shrink-0">
+            <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5"></i>
+            <input type="text" id="search-admin-user" placeholder="Cari nama, NIP, email, atau role..."
+                oninput="filterAdminUserList(this.value)"
+                class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-800 focus:outline-none focus:border-[#1a64f6]">
+        </div>
+
+        <!-- Scrollable Users Container -->
+        <div id="admin-user-list-container" class="space-y-2 overflow-y-auto flex-1 pr-1 text-xs">
+            <div class="py-8 text-center text-gray-400 italic">
+                <i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto mb-2 text-[#1a64f6]"></i>
+                <span>Memuat data pengguna...</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-2 border-t flex items-center justify-between text-[11px] text-gray-500 shrink-0">
+            <span id="admin-user-modal-count" class="font-medium text-gray-600">Total: 0 Pengguna</span>
+            <button onclick="loadAdminUserStats(true)" class="text-[#1a64f6] font-bold hover:underline flex items-center space-x-1 active:scale-95 transition">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                <span>Segarkan</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast"
+    class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl text-white transition-all duration-300">
+    <span id="toast-message">Notifikasi</span>
+</div>
