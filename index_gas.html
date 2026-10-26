@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Absensi Dosen INN Al farabi</title>
+    <?!= include('css'); ?>
+</head>
+
+<body class="pb-28 overflow-x-hidden w-full max-w-full">
+
+    <div id="app" class="w-full max-w-md mx-auto min-h-screen relative flex flex-col overflow-x-hidden">
+
+        <!-- LOGIN SCREEN VIEW -->
+        <div id="view-login"
+            class="flex-1 flex flex-col justify-center px-4 py-8 bg-[#0b1120] text-slate-100 min-h-screen">
+            <div class="w-full max-w-sm mx-auto">
+                <!-- FORM LOGIN -->
+                <div id="card-front-login"
+                    class="bg-[#0e1628]/95 border border-slate-800/80 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
+                    <!-- Institutional Emblem Circular Badge -->
+                    <div class="text-center mb-5">
+                        <div
+                            class="w-24 h-24 bg-white rounded-full mx-auto p-2 shadow-2xl flex items-center justify-center border-4 border-slate-700/40 overflow-hidden">
+                            <img src="https://lh3.googleusercontent.com/d/1DICVH_qIiRxBiAS1wRkTBLbSJM6o5bTo"
+                                onerror="this.src='https://drive.google.com/thumbnail?id=1DICVH_qIiRxBiAS1wRkTBLbSJM6o5bTo&sz=w500'"
+                                alt="Logo INN Al-Farabi"
+                                class="w-full h-full object-contain">
+                        </div>
+                        <h1 class="text-2xl font-extrabold text-white mt-3.5 tracking-tight">Masuk Sistem</h1>
+                        <p class="text-xs text-slate-400 mt-1 px-3 leading-relaxed">Gunakan akun resmi Sistem
+                            Informasi Akademik INN Al-Farabi.</p>
+                    </div>
+
+                    <!-- Soft Green Checklist Notice Banner -->
+                    <div
+                        class="bg-[#dcfce7] text-[#166534] px-4 py-2.5 rounded-2xl flex items-center space-x-2.5 text-xs font-semibold mb-5 shadow-sm border border-emerald-200">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-[#16a34a] shrink-0"></i>
+                        <span>Masukkan username dan password Anda.</span>
+                    </div>
+
+                    <form onsubmit="event.preventDefault(); handleLogin();" class="space-y-3.5">
+                        <!-- USERNAME -->
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-slate-300 tracking-wider uppercase mb-1">USERNAME</label>
+                            <div class="relative flex items-center">
+                                <i data-lucide="user"
+                                    class="w-4 h-4 text-blue-500 absolute left-3.5 pointer-events-none"></i>
+                                <input type="text" id="login-id" required
+                                    class="w-full pl-10 pr-4 py-2.5 bg-[#131d31] border border-[#23314d] rounded-2xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                                    placeholder="Masukkan username atau email">
+                            </div>
+                        </div>
+
+                        <!-- PASSWORD -->
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-slate-300 tracking-wider uppercase mb-1">PASSWORD</label>
+                            <div class="relative flex items-center">
+                                <i data-lucide="lock"
+                                    class="w-4 h-4 text-blue-500 absolute left-3.5 pointer-events-none"></i>
+                                <input type="password" id="login-pass" required
+                                    class="w-full pl-10 pr-4 py-2.5 bg-[#131d31] border border-[#23314d] rounded-2xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                                    placeholder="Masukkan password">
+                            </div>
+                        </div>
+
+                        <!-- PILIH HAK AKSES -->
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-slate-300 tracking-wider uppercase mb-1">PILIH
+                                HAK AKSES</label>
+                            <input type="hidden" id="login-role" value="Admin">
+
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <!-- Tombol Admin -->
+                                <button type="button" id="role-btn-admin" onclick="selectLoginRole('Admin')"
+                                    class="role-option-btn active-role flex items-center justify-center space-x-2 py-2.5 px-3 rounded-2xl border transition">
+                                    <i data-lucide="shield" class="w-4 h-4 text-blue-600"></i>
+                                    <span class="font-bold text-xs tracking-wide">Admin</span>
+                                </button>
+
+                                <!-- Dropdown Menu Hak Akses (Pimpinan, Dosen, Staff) -->
+                                <div class="relative">
+                                    <button type="button" id="role-btn-dropdown" onclick="toggleRoleDropdown(event)"
+                                        class="role-option-btn w-full flex items-center justify-between py-2.5 px-3.5 rounded-2xl border transition">
+                                        <div class="flex items-center space-x-1.5 truncate">
+                                            <i id="role-dropdown-icon" data-lucide="graduation-cap"
+                                                class="w-4 h-4 text-blue-400 shrink-0"></i>
+                                            <span id="role-dropdown-label"
+                                                class="font-bold text-xs truncate">Dosen</span>
+                                        </div>
+                                        <i data-lucide="chevron-down" id="role-chevron"
+                                            class="w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform"></i>
+                                    </button>
+
+                                    <div id="role-dropdown-menu"
+                                        class="hidden absolute right-0 left-0 mt-2 bg-[#131d31] border border-[#23314d] rounded-2xl shadow-2xl z-30 p-1.5 space-y-1 backdrop-blur-md">
+                                        <button type="button" onclick="selectLoginRole('Pimpinan')"
+                                            class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-left text-xs text-slate-200 hover:bg-blue-600 hover:text-white transition">
+                                            <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-400"></i>
+                                            <span>Pimpinan</span>
+                                        </button>
+                                        <button type="button" onclick="selectLoginRole('Dosen')"
+                                            class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-left text-xs text-slate-200 hover:bg-blue-600 hover:text-white transition">
+                                            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-blue-400"></i>
+                                            <span>Dosen</span>
+                                        </button>
+                                        <button type="button" onclick="selectLoginRole('Staff')"
+                                            class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-left text-xs text-slate-200 hover:bg-blue-600 hover:text-white transition">
+                                            <i data-lucide="briefcase" class="w-3.5 h-3.5 text-blue-400"></i>
+                                            <span>Staff</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TOMBOL MASUK GRADIENT -->
+                        <button type="submit" id="btn-login-submit"
+                            class="w-full py-3 bg-gradient-to-r from-[#2563eb] to-[#8b5cf6] text-white font-bold text-sm rounded-2xl shadow-lg shadow-blue-500/25 hover:opacity-95 active:scale-95 transition flex items-center justify-center space-x-2 mt-2">
+                            <span>Masuk</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+
+                    <p class="text-center text-[10px] text-slate-500 mt-5 font-medium">Copyright &copy;2024 | INN
+                        Al-Farabi Pangandaran</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN APP WRAPPER -->
+        <div id="view-main" class="hidden flex-1 flex flex-col w-full overflow-x-hidden">
+
+            <!-- TOP BANNER & PROFILE HEADER -->
+            <div class="header-banner text-white pt-8 pb-14 px-6 rounded-b-[32px] shadow-lg relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-xs font-medium text-blue-100" id="header-status-text">Online</span>
+                    </div>
+                    <button onclick="handleLogout()"
+                        class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-white backdrop-blur-sm transition">
+                        Keluar
+                    </button>
+                </div>
+
+                <!-- User Info -->
+                <div class="flex flex-col items-center text-center">
+                    <div class="relative mb-3">
+                        <img id="user-avatar"
+                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250"
+                            class="w-20 h-20 rounded-full object-cover border-4 border-white/30 shadow-md">
+                        <span id="user-role-badge"
+                            class="absolute bottom-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border-2 border-white">
+                            Guru
+                        </span>
+                    </div>
+                    <h1 id="user-display-name" class="text-lg font-bold tracking-tight">NAMA ASN/PNS</h1>
+                    <p id="user-display-info" class="text-xs text-blue-100 opacity-90 mt-0.5">email.pengguna@gmail.com -
+                        08123456789</p>
+                </div>
+
+                <!-- Location Floating Pill -->
+                <div class="absolute -bottom-6 left-4 right-4 max-w-full">
+                    <div onclick="initLocation(true); showToast('Memperbarui sinyal GPS...', 'info');"
+                        class="bg-white/95 backdrop-blur-md px-4 py-3 rounded-2xl shadow-lg border border-white flex items-center justify-between text-xs text-gray-600 cursor-pointer active:scale-95 transition-transform"
+                        title="Ketuk untuk perbarui sinyal GPS">
+                        <div class="flex items-center space-x-2 overflow-hidden mr-2">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-[#1a64f6] shrink-0"></i>
+                            <span id="current-gps-loc"
+                                class="font-mono text-gray-700 font-semibold text-[11px] truncate">Mendapatkan
+                                GPS...</span>
+                        </div>
+                        <span id="gps-distance-pill"
+                            class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-blue-100 text-[#1a64f6] shrink-0">
+                            - m
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE CONTENT AREA -->
+            <div class="px-5 pt-12 flex-1">
+
+                <!-- TAB BERANDA -->
+                <div id="tab-beranda" class="space-y-5">
+                    <!-- Action Buttons Grid -->
+                    <div class="grid grid-cols-2 gap-3 mt-1">
+                        <button onclick="openCameraModal('MASUK')"
+                            class="btn-masuk text-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-lg shadow-blue-500/20 active:scale-95 transition">
+                            <i data-lucide="clock" class="w-8 h-8 mb-2"></i>
+                            <span class="font-extrabold text-sm tracking-wide">ABSEN MASUK</span>
+                        </button>
+
+                        <button onclick="openCameraModal('PULANG')"
+                            class="btn-pulang text-white p-4 rounded-2xl flex flex-col items-center justify-center shadow-lg shadow-rose-500/20 active:scale-95 transition">
+                            <i data-lucide="clock" class="w-8 h-8 mb-2"></i>
+                            <span class="font-extrabold text-sm tracking-wide">ABSEN PULANG</span>
+                        </button>
+                    </div>
+
+                    <!-- WIDGET KONTROL USER TERDAFTAR (KHUSUS ADMIN) -->
+                    <div id="admin-user-widget" class="hidden card-soft p-4 border border-blue-100 shadow-sm transition-all duration-300">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-8 h-8 rounded-xl bg-blue-50 text-[#1a64f6] flex items-center justify-center">
+                                    <i data-lucide="users" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-xs text-gray-800">Kontrol Data Pengguna</h3>
+                                    <p class="text-[10px] text-gray-400">Total terdaftar di sistem</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1.5">
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-100 text-[#1a64f6] tracking-wider uppercase">
+                                    Admin Only
+                                </span>
+                                <button type="button" onclick="loadAdminUserStats(true)" title="Segarkan Data"
+                                    class="p-1 text-gray-400 hover:text-[#1a64f6] active:rotate-180 transition-transform duration-300">
+                                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Metric Summary Grid -->
+                        <div class="grid grid-cols-4 gap-2 mb-3">
+                            <div class="bg-gray-50/80 rounded-xl p-2 text-center border border-gray-100">
+                                <div id="stat-total-user" class="text-base font-extrabold text-gray-800 leading-tight">0</div>
+                                <div class="text-[9px] font-semibold text-gray-500 mt-0.5">Total</div>
+                            </div>
+                            <div class="bg-blue-50/60 rounded-xl p-2 text-center border border-blue-100/60">
+                                <div id="stat-dosen-user" class="text-base font-extrabold text-[#1a64f6] leading-tight">0</div>
+                                <div class="text-[9px] font-semibold text-blue-600 mt-0.5">Dosen</div>
+                            </div>
+                            <div class="bg-amber-50/60 rounded-xl p-2 text-center border border-amber-100/60">
+                                <div id="stat-staff-user" class="text-base font-extrabold text-amber-600 leading-tight">0</div>
+                                <div class="text-[9px] font-semibold text-amber-700 mt-0.5">Staff</div>
+                            </div>
+                            <div class="bg-emerald-50/60 rounded-xl p-2 text-center border border-emerald-100/60">
+                                <div id="stat-pimpinan-user" class="text-base font-extrabold text-emerald-600 leading-tight">0</div>
+                                <div class="text-[9px] font-semibold text-emerald-700 mt-0.5">Pimpinan</div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button to View / Manage Users -->
+                        <button type="button" onclick="openAdminUserModal()"
+                            class="w-full py-2.5 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-md shadow-blue-500/15 active:scale-[0.98] transition">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                            <span>Kelola & Lihat Daftar Pengguna</span>
+                        </button>
+                    </div>
+
+                    <!-- Table Absen Hari Ini -->
+                    <div class="card-soft p-4">
+                        <h3 class="font-bold text-sm text-gray-800 mb-3 flex items-center justify-between">
+                            <span>Absen Hari Ini</span>
+                            <span id="today-date-badge"
+                                class="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-[#1a64f6] rounded-lg">
+                                -
+                            </span>
+                        </h3>
+
+                        <div class="overflow-x-auto rounded-xl border border-gray-100">
+                            <table class="w-full text-xs text-center">
+                                <thead class="bg-[#1a64f6] text-white font-semibold">
+                                    <tr>
+                                        <th class="py-2.5 px-2">Tanggal</th>
+                                        <th class="py-2.5 px-2">Masuk</th>
+                                        <th class="py-2.5 px-2">Pulang</th>
+                                        <th class="py-2.5 px-2">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="today-table-body" class="divide-y divide-gray-100 bg-white text-gray-600">
+                                    <tr>
+                                        <td colspan="4" class="py-4 text-gray-400 italic">Belum ada catatan hari ini
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB RIWAYAT ABSENSI -->
+                <div id="tab-absensi" class="hidden space-y-4">
+                    <div class="card-soft p-4">
+                        <h3 class="font-bold text-sm text-gray-800 mb-3">Riwayat Presensi</h3>
+
+                        <div class="space-y-3" id="history-container">
+                            <!-- Dynamically Populated -->
+                        </div>
+
+                        <!-- Pagination Control -->
+                        <div class="flex items-center justify-between pt-3 text-xs text-gray-500">
+                            <button onclick="changeHistoryPage(-1)" id="btn-prev-page"
+                                class="px-3 py-1.5 bg-gray-100 rounded-lg hover:bg-gray-200">Prev</button>
+                            <span id="page-indicator">Halaman 1</span>
+                            <button onclick="changeHistoryPage(1)" id="btn-next-page"
+                                class="px-3 py-1.5 bg-gray-100 rounded-lg hover:bg-gray-200">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB LAPORAN ADMIN & SETTING LOKASI -->
+                <div id="tab-laporan" class="hidden space-y-4">
+                    <!-- Admin Settings: Geofencing Location & Interactive Map Picker -->
+                    <div class="card-soft p-4 space-y-3 border-l-4 border-[#1a64f6]">
+                        <h3 class="font-bold text-sm text-gray-800 flex items-center justify-between">
+                            <span>Pengaturan Lokasi Sekolah</span>
+                            <span id="badge-geofence-status"
+                                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">AKTIF</span>
+                        </h3>
+
+                        <!-- Search Location Bar -->
+                        <div class="flex items-center space-x-1.5">
+                            <input type="text" id="setting-search-map" placeholder="Cari nama lokasi / alamat..."
+                                class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs focus:outline-none focus:border-[#1a64f6]"
+                                onkeypress="if(event.key==='Enter'){event.preventDefault();searchLocationOnMap();}">
+                            <button type="button" onclick="searchLocationOnMap()"
+                                class="px-3 py-2 bg-[#1a64f6] text-white rounded-xl text-xs font-bold flex items-center space-x-1 shrink-0 active:scale-95 transition">
+                                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                                <span>Cari</span>
+                            </button>
+                        </div>
+
+                        <!-- Interactive Leaflet Map Picker -->
+                        <div id="admin-map" class="w-full h-48 rounded-xl border border-gray-200"></div>
+                        <p class="text-[10px] text-gray-400 italic text-center">💡 Geser pin penanda di peta untuk
+                            menentukan koordinat presisi sekolah.</p>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-semibold text-gray-500 mb-1">Latitude</label>
+                                <input type="text" id="setting-lat" placeholder="-6.4024844"
+                                    oninput="updateMapFromInputs()"
+                                    class="w-full px-2.5 py-2 bg-gray-50 border rounded-xl text-xs font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold text-gray-500 mb-1">Longitude</label>
+                                <input type="text" id="setting-lng" placeholder="106.7942405"
+                                    oninput="updateMapFromInputs()"
+                                    class="w-full px-2.5 py-2 bg-gray-50 border rounded-xl text-xs font-mono">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 items-center">
+                            <div>
+                                <label class="block text-[10px] font-semibold text-gray-500 mb-1">Radius Max
+                                    (Meter)</label>
+                                <input type="number" id="setting-radius" placeholder="100"
+                                    oninput="updateMapFromInputs()"
+                                    class="w-full px-2.5 py-2 bg-gray-50 border rounded-xl text-xs font-mono">
+                            </div>
+                            <div class="pt-3">
+                                <label class="inline-flex items-center cursor-pointer space-x-2">
+                                    <input type="checkbox" id="setting-toggle-geofence" class="sr-only peer"
+                                        onchange="toggleGeofenceBadge(this.checked)">
+                                    <div
+                                        class="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#1a64f6] relative">
+                                    </div>
+                                    <span class="text-xs font-semibold text-gray-700">Aktifkan GPS</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button onclick="handleSaveSettings()" id="btn-save-settings"
+                            class="w-full py-2.5 bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md active:scale-95 transition">
+                            Simpan Lokasi & Status Geofencing
+                        </button>
+                    </div>
+
+                    <!-- Rekapitulasi Laporan Filter -->
+                    <div class="card-soft p-4 space-y-3">
+                        <h3 class="font-bold text-sm text-gray-800">Rekapitulasi Laporan (Admin)</h3>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-semibold text-gray-500 mb-1">Dari Tanggal</label>
+                                <input type="date" id="filter-start-date"
+                                    class="w-full px-2.5 py-2 bg-gray-50 border rounded-xl text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold text-gray-500 mb-1">Sampai Tanggal</label>
+                                <input type="date" id="filter-end-date"
+                                    class="w-full px-2.5 py-2 bg-gray-50 border rounded-xl text-xs">
+                            </div>
+                        </div>
+
+                        <input type="text" id="filter-search-name" placeholder="Cari Nama Guru..."
+                            class="w-full px-3 py-2 bg-gray-50 border rounded-xl text-xs">
+
+                        <div class="flex space-x-2">
+                            <button onclick="loadAdminReport(1)"
+                                class="flex-1 py-2 bg-[#1a64f6] text-white font-bold text-xs rounded-xl shadow-md active:scale-95 transition">
+                                Filter Data
+                            </button>
+                            <button onclick="handleDirectDownloadPdf()" id="btn-download-pdf"
+                                class="py-2 px-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center space-x-1 active:scale-95 transition">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                <span>Cetak PDF</span>
+                            </button>
+                            <button onclick="exportToCSV()"
+                                class="py-2 px-3 bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-md flex items-center space-x-1">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                <span>CSV</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-soft p-4 space-y-3">
+                        <div class="flex items-center justify-between border-b pb-2.5">
+                            <h4 class="font-bold text-xs text-gray-700 flex items-center space-x-1.5">
+                                <i data-lucide="list" class="w-3.5 h-3.5 text-[#1a64f6]"></i>
+                                <span>Daftar Riwayat Kehadiran</span>
+                            </h4>
+                            <span id="admin-report-total-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#1a64f6]">
+                                0 Data
+                            </span>
+                        </div>
+
+                        <div id="admin-report-list" class="space-y-2 text-xs divide-y divide-gray-100">
+                            <!-- Admin report items -->
+                        </div>
+
+                        <!-- Pagination Navigation Controls (Anti Scroll Kepanjangan) -->
+                        <div id="admin-report-pagination" class="hidden pt-3 border-t flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+                            <span id="admin-report-page-info" class="text-[11px] font-medium text-gray-500 text-center sm:text-left">
+                                Menampilkan 1-10 data
+                            </span>
+                            <div class="flex items-center space-x-1.5">
+                                <button onclick="changeAdminReportPage('prev')" id="btn-report-prev"
+                                    class="px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none font-semibold text-xs flex items-center space-x-1 active:scale-95 transition">
+                                    <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                                    <span>Sebelumnya</span>
+                                </button>
+                                <span id="admin-report-page-number" class="px-3 py-1 font-bold text-xs text-[#1a64f6] bg-blue-50 rounded-xl">
+                                    1 / 1
+                                </span>
+                                <button onclick="changeAdminReportPage('next')" id="btn-report-next"
+                                    class="px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:pointer-events-none font-semibold text-xs flex items-center space-x-1 active:scale-95 transition">
+                                    <span>Berikutnya</span>
+                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB PROFIL & SETTING -->
+                <div id="tab-profile" class="hidden space-y-4">
+                    <div class="card-soft p-5 space-y-4">
+                        <h3 class="font-bold text-sm text-gray-800 border-b pb-2">Pengaturan Profil</h3>
+
+                        <!-- Profile Picture Gallery Selector Section -->
+                        <div
+                            class="flex flex-col items-center justify-center bg-blue-50/50 p-4 rounded-2xl border border-blue-100/60 space-y-3">
+                            <img id="edit-profile-preview"
+                                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250"
+                                class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md">
+
+                            <div class="flex flex-col items-center space-y-2 w-full">
+                                <label for="edit-foto-file"
+                                    class="cursor-pointer w-full py-2 px-4 bg-white border border-blue-200 text-[#1a64f6] font-bold text-xs rounded-xl shadow-sm hover:bg-blue-50 text-center flex items-center justify-center space-x-2 transition">
+                                    <i data-lucide="image" class="w-4 h-4"></i>
+                                    <span>Pilih Foto dari Galeri</span>
+                                </label>
+                                <input type="file" id="edit-foto-file" accept="image/*" class="hidden"
+                                    onchange="handleProfilePhotoSelect(event)">
+                                <p class="text-[10px] text-gray-400 text-center">Format JPG/PNG. Otomatis dikompresi &
+                                    disimpan ke Sheets.</p>
+                            </div>
+                        </div>
+
+                        <form onsubmit="event.preventDefault(); handleUpdateProfile();" class="space-y-3 pt-1">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Lengkap</label>
+                                <input type="text" id="edit-nama"
+                                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#1a64f6] focus:bg-white transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+                                <input type="email" id="edit-email"
+                                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#1a64f6] focus:bg-white transition">
+                            </div>
+
+                            <!-- Hidden input for holding image base64 or URL string -->
+                            <input type="hidden" id="edit-foto">
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Password Baru
+                                    (Opsional)</label>
+                                <input type="password" id="edit-pass"
+                                    class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#1a64f6] focus:bg-white transition"
+                                    placeholder="Biarkan kosong jika tidak diubah">
+                            </div>
+
+                            <button type="submit" id="btn-save-profile"
+                                class="w-full py-3 bg-[#1a64f6] text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 active:scale-95 transition mt-2">
+                                Simpan Perubahan Profil
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BOTTOM NAVIGATION BAR -->
+            <nav
+                class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-2.5 px-6 max-w-md mx-auto flex justify-between items-center z-40 shadow-lg">
+                <button onclick="switchTab('beranda')" id="nav-beranda"
+                    class="nav-item active flex flex-col items-center text-gray-400">
+                    <i data-lucide="home" class="w-5 h-5 mb-0.5"></i>
+                    <span class="text-[10px]">Beranda</span>
+                </button>
+
+                <button onclick="switchTab('absensi')" id="nav-absensi"
+                    class="nav-item flex flex-col items-center text-gray-400">
+                    <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
+                    <span class="text-[10px]">Absensi</span>
+                </button>
+
+                <button onclick="switchTab('laporan')" id="nav-laporan"
+                    class="nav-item hidden flex flex-col items-center text-gray-400">
+                    <i data-lucide="file-text" class="w-5 h-5 mb-0.5"></i>
+                    <span class="text-[10px]">Laporan</span>
+                </button>
+
+                <button onclick="switchTab('profile')" id="nav-profile"
+                    class="nav-item flex flex-col items-center text-gray-400">
+                    <i data-lucide="settings" class="w-5 h-5 mb-0.5"></i>
+                    <span class="text-[10px]">Profile</span>
+                </button>
+            </nav>
+
+        </div>
+
+        <?!= include('modals'); ?>
+
+    </div>
+
+    <?!= include('js'); ?>
+</body>
+
+</html>
